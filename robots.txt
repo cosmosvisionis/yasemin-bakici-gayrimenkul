@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /yasemin-bakici-gayrimenkul/admin/
+
+Sitemap: https://cosmosvisionis.github.io/yasemin-bakici-gayrimenkul/sitemap.xml
