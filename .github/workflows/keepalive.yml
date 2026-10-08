@@ -1,0 +1,17 @@
+# Layer 2 of the Supabase keep-alive: an independent daily check from outside Supabase.
+# A failed run (API down, project paused, DB error) makes GitHub email the repo owner.
+name: keepalive
+on:
+  schedule:
+    - cron: "23 5 * * *"
+    - cron: "23 17 * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API health endpoint
+        run: |
+          body=$(curl --fail --silent --show-error --max-time 30 --retry 5 --retry-delay 15 --retry-all-errors "https://dzlevuhftdkvxrcmjcjo.supabase.co/functions/v1/api/health")
+          echo "$body"
+          echo "$body" | grep -q '"ok":true'

@@ -1,0 +1,27 @@
+# Keeps per-listing pages and sitemap.xml in sync with the database (listings are edited in the admin,
+# which cannot rebuild a static site by itself). Commits only when something changed.
+name: refresh
+on:
+  schedule:
+    - cron: "11,41 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pre-render listing pages and sitemap
+        run: node .github/scripts/prerender.mjs .
+      - name: Commit if changed
+        run: |
+          git config user.name "refresh-bot"
+          git config user.email "refresh-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Refresh listing pages $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
